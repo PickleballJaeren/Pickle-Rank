@@ -374,9 +374,19 @@ let state = { players:[], rounds:[], nextPlayerId:1, nextRoundId:1 };
 // Active division: 1 or 2
 let activeDivision = 1;
 
-function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
-function load() {
-  try { const d = localStorage.getItem(STORAGE_KEY); if (d) state = JSON.parse(d); } catch(e) {}
+async function load() {
+  try {
+    const res = await fetch('data.json');
+    state = await res.json();
+  } catch (e) {
+    console.error('Kunne ikke laste data.json', e);
+  }
+}
+
+async function save() {
+  alert("⚠️ Endringer lagres ikke automatisk!\n\nFor å oppdatere for alle må du:\n1. Laste ned data\n2. Lime inn i data.json på GitHub");
+}
+  
   // Migrate old data: give all existing players division 1
   state.players.forEach(p => { if (!p.division) p.division = 1; });
   state.rounds.forEach(r => { if (!r.division) r.division = 1; });
@@ -979,11 +989,20 @@ function showToast(msg) {
 // ═══════════════════════════════════════════════════════
 //  BOOT
 // ═══════════════════════════════════════════════════════
-load();
-updateLockBtn();
+
+  (async () => {
+  await load();
+  updateLockBtn();
+
+    // document.getElementById('div-tabs').style.display = 'flex';
+    
+  renderLeaderboard('');
+})();
+  
 // Show div tabs on leaderboard by default
-document.getElementById('div-tabs').style.display = 'flex';
-renderLeaderboard('');
+
+
+  
 </script>
 </body>
 </html>
